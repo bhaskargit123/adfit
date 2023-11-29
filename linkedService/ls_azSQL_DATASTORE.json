@@ -6,7 +6,7 @@
 		"type": "AzureSqlDatabase",
 		"typeProperties": {
 			"connectionString": "integrated security=False;encrypt=True;connection timeout=30;data source=bhaskarsql.database.windows.net;initial catalog=DATASTORE;user id=BHASKAR",
-			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDgyMkNDNEJCLTI5NzUtNEIyNi05RjlGLTY0QUIzNTZBMkMwNl8xNWNmZjA4Ni1mYmM2LTQ5ZTYtODg4ZS0wOGQwZWY5ZmQ5ZGQiDQp9"
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDgzMTlGREIzLTU2NzUtNDNDOC04RTU3LUY5Q0FENTc4NEU3OV80ZTAyN2IxNy0xNWY3LTRmMjAtYTIwOS1jMjhiZTk0YzQwZGEiDQp9"
 		}
 	}
 }
