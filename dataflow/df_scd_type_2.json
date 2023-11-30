@@ -3,11 +3,70 @@
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
-			"sources": [],
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_azSQL_DATASTORE_Query",
+						"type": "DatasetReference"
+					},
+					"name": "customer"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_azSQL_DATASTORE_Query",
+						"type": "DatasetReference"
+					},
+					"name": "dimCustomer"
+				}
+			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "SrcSelect"
+				},
+				{
+					"name": "TrgSelect"
+				}
+			],
 			"scriptLines": [
-				""
+				"source(output(",
+				"          CustomerID as integer,",
+				"          FName as string,",
+				"          Location as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT * FROM customer',",
+				"     format: 'query') ~> customer",
+				"source(output(",
+				"          CustKey as integer,",
+				"          CustomerID as integer,",
+				"          FName as string,",
+				"          Location as string,",
+				"          StartDate as date,",
+				"          EndDate as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT * FROM DimCustomer \\nWHERE EndDate IS NULL',",
+				"     format: 'query') ~> dimCustomer",
+				"customer select(mapColumn(",
+				"          Src_CustomerID = CustomerID,",
+				"          Src_FName = FName,",
+				"          Src_Location = Location",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SrcSelect",
+				"dimCustomer select(mapColumn(",
+				"          CustKey,",
+				"          Trg_CustomerID = CustomerID,",
+				"          Trg_FName = FName,",
+				"          Trg_Location = Location",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> TrgSelect"
 			]
 		}
 	}
