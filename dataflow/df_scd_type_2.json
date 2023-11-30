@@ -19,13 +19,54 @@
 					"name": "dimCustomer"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "ls_azSQL_DATASTORE",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "SrcSelect"
 				},
 				{
 					"name": "TrgSelect"
+				},
+				{
+					"name": "lookup1"
+				},
+				{
+					"name": "split1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "UpdatedRecords"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "NewAndUpdatedRecds"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "select3"
+				},
+				{
+					"name": "derivedColumn3"
+				},
+				{
+					"name": "alterRow1"
 				}
 			],
 			"scriptLines": [
@@ -66,7 +107,66 @@
 				"          Trg_Location = Location",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> TrgSelect"
+				"     skipDuplicateMapOutputs: true) ~> TrgSelect",
+				"SrcSelect, TrgSelect lookup(Src_CustomerID == Trg_CustomerID,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup1",
+				"lookup1 split(isNull(CustKey),",
+				"     !isNull(CustKey),",
+				"     disjoint: false) ~> split1@(NewRecords, ExistedRecords)",
+				"split1@NewRecords select(mapColumn(",
+				"          CustomerID = Src_CustomerID,",
+				"          FName = Src_FName,",
+				"          Location = Src_Location",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"split1@ExistedRecords derive(Flag = iif(Src_FName != Trg_FName || Src_Location != Trg_Location, 1, 0)) ~> derivedColumn1",
+				"derivedColumn1 filter(Flag==1) ~> UpdatedRecords",
+				"UpdatedRecords select(mapColumn(",
+				"          CustomerID = Src_CustomerID,",
+				"          FName = Src_FName,",
+				"          Location = Src_Location",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select1, select2 union(byName: true)~> NewAndUpdatedRecds",
+				"NewAndUpdatedRecds derive(StartDate = currentDate()) ~> derivedColumn2",
+				"UpdatedRecords select(mapColumn(",
+				"          CustKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select3",
+				"select3 derive(EndDate = currentDate()) ~> derivedColumn3",
+				"derivedColumn3 alterRow(updateIf(1==1)) ~> alterRow1",
+				"derivedColumn2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          CustKey as integer,",
+				"          CustomerID as integer,",
+				"          FName as string,",
+				"          Location as string,",
+				"          StartDate as date,",
+				"          EndDate as date",
+				"     ),",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: 'dbo',",
+				"     tableName: 'DimCustomer',",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     deletable: false,",
+				"     upsertable: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          CustomerID,",
+				"          FName,",
+				"          Location,",
+				"          StartDate",
+				"     )) ~> sink1"
 			]
 		}
 	}
