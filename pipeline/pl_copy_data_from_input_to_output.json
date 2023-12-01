@@ -59,6 +59,34 @@
 						"type": "DatasetReference"
 					}
 				]
+			},
+			{
+				"name": "Web1",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Copy data1",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://prod-28.centralindia.logic.azure.com:443/workflows/d6d1f8381ed74a95931a9d386e55fc45/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=NnqrdjLSifsEKsplAZ8qAqYBfwYN-k1J8crX3H_pn7M",
+					"method": "POST",
+					"body": {
+						"value": "{\n\"DataFactoryName\":\"@{pipeline().DataFactory}\",\n\"PipelineName\":\"@{pipeline().Pipeline}\",\n\"RunIDs\":\"@{pipeline().RunId}\",\n\"ErrorMessage\":\"@{activity('Copy data1').output.errors[0].Message}\"\n}",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"annotations": []
